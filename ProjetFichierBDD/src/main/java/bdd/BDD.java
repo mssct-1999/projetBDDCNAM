@@ -111,7 +111,6 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void saveMetaData() throws IOException {
-
 		saveLinks();
 		saveFreeSpaceTab();
 	}
@@ -127,7 +126,12 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	public void putObject(String objectName, Serializable object) throws IOException {
-		//TODO complete
+		try {
+			byte[] objSer = SerializationTools.serialize(object);
+			//TODO putData
+		} catch(IOException ie) {
+			System.out.println("Erreur lors de la sérialisation de l'objet - putObject");
+		}
 	}
 	/**
 	 * Ajout d'un enregistrement linéairement dans le fichier.
@@ -176,7 +180,6 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private byte[] readData(long pos) throws IOException {
-
 		//TODO complete
 		return null;
 	}
