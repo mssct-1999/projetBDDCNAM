@@ -127,8 +127,7 @@ public class BDD implements AutoCloseable{
 	 */
 	public void putObject(String objectName, Serializable object) throws IOException {
 		try {
-			byte[] objSer = SerializationTools.serialize(object);
-			//TODO putData
+			putData(objectName, SerializationTools.serialize(object));
 		} catch(IOException ie) {
 			System.out.println("Erreur lors de la sérialisation de l'objet - putObject");
 		}
@@ -144,7 +143,11 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void putData(String objectName, byte[] array) throws IOException {
-		//TODO complete
+		removeObject(objectName);
+		long pos = findPosition(array);
+		this.links.put(objectName, pos);
+		writeData(array,pos);
+		saveLinks();
 	}
 
 	/**
@@ -154,7 +157,9 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void writeData(byte[] data, long pos) throws IOException {
-		//TODO complete
+		this.raf.seek(pos);
+		this.raf.writeInt(data.length);
+		this.raf.write(data);
 	}
 
 	/**
@@ -168,8 +173,12 @@ public class BDD implements AutoCloseable{
 	 * @throws ClassNotFoundException si l'object n'a pas pu être désérialisé
 	 */
 	public Serializable getObject(String objectName) throws IOException, ClassNotFoundException {
-		//TODO complete
-		return null;
+		if (objectName != null) {
+			byte[] buffer = readData(links.get(objectName));
+			return SerializationTools.deserialize(buffer);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -180,8 +189,10 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private byte[] readData(long pos) throws IOException {
-		//TODO complete
-		return null;
+		this.raf.seek(pos);
+		byte[] byteArray = new byte[this.raf.readInt()];
+		this.raf.read(byteArray);
+		return byteArray;
 	}
 
 	/**
@@ -191,8 +202,7 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(byte[] array) throws IOException {
-		//TODO complete
-		return -1;
+		return findPosition(array.length);
 	}
 	/**
 	 * Cette fonction trouve une position libre dans le fichier {@link #raf} où enregistrer des données binaires dont la taille est donnée en paramètre.
@@ -203,8 +213,8 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(long desiredLength) throws IOException {
-		//TODO complete
-		return -1;
+		Long pos = findPositionIntoFreeSpace(desiredLength);
+		return pos;
 	}
 
 	/**
