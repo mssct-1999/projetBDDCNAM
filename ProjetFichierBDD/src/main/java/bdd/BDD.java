@@ -202,7 +202,7 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(byte[] array) throws IOException {
-		return findPosition(array.length);
+		return this.findPosition(array.length);
 	}
 	/**
 	 * Cette fonction trouve une position libre dans le fichier {@link #raf} où enregistrer des données binaires dont la taille est donnée en paramètre.
@@ -213,7 +213,7 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(long desiredLength) throws IOException {
-		Long pos = findPositionIntoFreeSpace(desiredLength);
+		Long pos = this.findPositionIntoFreeSpace(desiredLength);
 		return pos;
 	}
 
@@ -226,7 +226,11 @@ public class BDD implements AutoCloseable{
 	 */
 	private Long findPositionIntoFreeSpace(long desiredLength)
 	{
-		//TODO complete
+		for(FreeSpaceInterval freeSpace : this.freeSpaceIntervals) {
+			if (freeSpace.getLength() >= desiredLength) {
+				return freeSpace.getStartPosition();
+			}
+		}
 		return null;
 	}
 
@@ -238,8 +242,15 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	public boolean removeObject(String objectName) throws IOException {
-		//TODO complete
-		return false;
+		long position = links.get(objectName);
+		if (position != -1) {
+			this.removeObject(position);
+			this.links.remove(objectName);
+			this.saveLinks();
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -255,7 +266,6 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void removeObject(long pos) throws IOException {
-		//TODO complete
 	}
 
 
@@ -272,7 +282,12 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private void saveLinks() throws IOException {
-		//TODO complete
+		this.removeLinks();
+		byte[] data = SerializationTools.serialize(links);
+		long position = this.findPosition(data);
+		writeData(data, position);
+		this.raf.seek(LINKS_REFERENCE_POSITION);
+		this.raf.writeLong(position);
 	}
 
 	/**
@@ -337,7 +352,4 @@ public class BDD implements AutoCloseable{
 		saveMetaData();
 		raf.close();
 	}
-
-
-
 }
