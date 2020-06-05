@@ -235,7 +235,7 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private long findPosition(byte[] array) throws IOException {
-		return findPosition(array.length);
+		return findPosition(array.length+4);
 	}
 	/**
 	 * Cette fonction trouve une position libre dans le fichier {@link #raf} où enregistrer des données binaires dont la taille est donnée en paramètre.
@@ -393,7 +393,7 @@ public class BDD implements AutoCloseable{
 	private void readFreeSpaceTab() throws IOException {
 		this.raf.seek(SPACE_TAB_REFERENCE_POSITION);
 		byte[] data = this.readData(this.raf.readLong());
-		freeSpaceIntervals = SerializationTools.deserializeFreeSpaceIntervals(data);
+		this.freeSpaceIntervals = SerializationTools.deserializeFreeSpaceIntervals(data);
 	}
 
 	/**
