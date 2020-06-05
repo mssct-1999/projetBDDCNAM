@@ -1,6 +1,7 @@
 package bdd;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.TreeSet;
 
@@ -94,22 +95,22 @@ class SerializationTools {
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	static byte[] serializeFreeSpaceIntervals(TreeSet<BDD.FreeSpaceInterval> freeSpaceIntervals) throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(bos);
-		if (freeSpaceIntervals != null) {
-			try {
-				for (BDD.FreeSpaceInterval spaceInterval : freeSpaceIntervals) {
-					dos.writeLong(spaceInterval.getStartPosition());
-					dos.writeLong(spaceInterval.getLength());
-					dos.flush();
-				}
-			} catch(Exception e) {
-
-			}
-		} else {
+		//complete
+		if(freeSpaceIntervals == null) {
 			throw new NullPointerException();
 		}
-		return bos.toByteArray();
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+
+		for(BDD.FreeSpaceInterval interval : freeSpaceIntervals) {
+
+			dataOutputStream.writeLong(interval.getStartPosition());
+			dataOutputStream.writeLong(interval.getLength());
+			dataOutputStream.flush();
+		}
+
+		return byteArrayOutputStream.toByteArray();
 	}
 
 	/**
@@ -119,25 +120,21 @@ class SerializationTools {
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	static TreeSet<BDD.FreeSpaceInterval> deserializeFreeSpaceIntervals(byte[] data) throws IOException {
-		TreeSet<BDD.FreeSpaceInterval> freeSpace = new TreeSet<BDD.FreeSpaceInterval>();
-		if (data != null) {
-			try {
-				for (int i = 0; i < data.length; i++) {
-					ByteArrayInputStream byteArray = new ByteArrayInputStream(Arrays.copyOfRange(data,i,i+8));
-					DataInputStream obj = new DataInputStream(byteArray);
-					ByteArrayInputStream byteArray2 = new ByteArrayInputStream(Arrays.copyOfRange(data, i + 8, i + 16));
-					DataInputStream obj2 = new DataInputStream(byteArray2);
-					freeSpace.add(new BDD.FreeSpaceInterval((long)byteArray.read(), (long)byteArray2.read()));
-					byteArray.close();
-					obj.close();
-				}
-			} catch(IOException io) {
-				io.printStackTrace();
-				System.err.println("Erreur - Méthode deserializeSpaceIntervals");
-			}
-		} else {
+		if(data == null) {
 			throw new NullPointerException();
 		}
-		return freeSpace;
+		TreeSet<BDD.FreeSpaceInterval> _freeSpaceInterval = new TreeSet<BDD.FreeSpaceInterval>();
+		byte[] array1 = new byte[8];
+		byte[] array2 = new byte[8];
+
+		ByteArrayInputStream arrayInput = new ByteArrayInputStream(data);
+
+		while (arrayInput.read(array1) != -1 && arrayInput.read(array2) != -1) {
+				_freeSpaceInterval.add(new BDD.FreeSpaceInterval(
+						ByteBuffer.wrap(array1).getLong(),
+						ByteBuffer.wrap(array2).getLong()
+				));
+			}
+		return _freeSpaceInterval;
 	}
 }

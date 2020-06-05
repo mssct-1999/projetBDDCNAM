@@ -220,21 +220,12 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private byte[] readData(long pos) throws IOException {
-		System.out.println(pos);
-		try {
-			if (pos >= 0) {
-				this.raf.seek(pos);
-				System.out.println("Random Access file: " + this.raf.readInt());
-				byte[] byteArray = new byte[this.raf.readInt()];
-				this.raf.read(byteArray);
-				return byteArray;
-			} else {
-				return null;
-			}
-		} catch(IOException ex) {
-			System.out.println(ex);
-			throw ex;
-		}
+		//complete
+		this.raf.seek(pos);
+		int sizeOfData = this.raf.readInt();
+		byte[] res = new byte[sizeOfData];
+		this.raf.read(res);
+		return res;
 	}
 
 	/**
@@ -287,20 +278,16 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	public boolean removeObject(String objectName) throws IOException {
-		System.out.println(this.links);
-		if (objectName != null) {
-			long position = this.links.get(objectName);
-			if (position != -1) {
-				this.removeObject(position);
-				this.links.remove(objectName);
-				this.saveLinks();
-				return true;
-			} else {
-				return false;
-			}
-		} else {
+		//complete
+		if (objectName == null) {
 			throw new NullPointerException();
 		}
+		Long positionObjectInFile = this.links.remove(objectName);
+		if (positionObjectInFile != null) {
+			this.removeObject(positionObjectInFile);
+			return true;
+		}
+		return false;
 	}
 
 	/**
