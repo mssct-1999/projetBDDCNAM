@@ -57,10 +57,10 @@ class SerializationTools {
 	 * @throws ClassNotFoundException si un problème lors de la déserialisation s'est produit
 	 */
 	static Serializable deserialize(byte[] data) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream bis = new ByteArrayInputStream(data);
-		ObjectInput in = null;
 		Serializable o;
 		if (data != null) {
+			ByteArrayInputStream bis = new ByteArrayInputStream(data);
+			ObjectInput in = null;
 			try {
 				in = new ObjectInputStream(bis);
 				o = (Serializable) in.readObject();
