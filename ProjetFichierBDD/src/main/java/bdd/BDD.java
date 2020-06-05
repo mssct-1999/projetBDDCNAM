@@ -131,7 +131,7 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	public void putObject(String objectName, Serializable object) throws IOException {
-		if (objectName != null ||	 object != null) {
+		if (objectName != null || object != null) {
 			try {
 				putData(objectName, SerializationTools.serialize(object));
 			} catch(IOException ie) {
@@ -205,10 +205,16 @@ public class BDD implements AutoCloseable{
 	 * @throws IOException si un problème d'entrée/sortie se produit
 	 */
 	private byte[] readData(long pos) throws IOException {
-		this.raf.seek(pos);
-		byte[] byteArray = new byte[this.raf.readInt()];
-		this.raf.read(byteArray);
-		return byteArray;
+		try {
+			this.raf.seek(pos);
+			System.out.println("Random Access file: " + this.raf.readInt());
+			byte[] byteArray = new byte[this.raf.readInt()];
+			this.raf.read(byteArray);
+			return byteArray;
+		} catch(Exception ex) {
+			System.out.println(ex);
+			throw ex;
+		}
 	}
 
 	/**
@@ -324,9 +330,14 @@ public class BDD implements AutoCloseable{
 	 * @throws ClassNotFoundException si la désérialisation se passe mal.
 	 */
 	private void readLinks() throws IOException, ClassNotFoundException {
-		if (this.readData(LINKS_REFERENCE_POSITION) != null) {
-			this.raf.seek(LINKS_REFERENCE_POSITION);
-			this.links = (HashMap<String,Long>) SerializationTools.deserialize(this.readData(this.raf.readLong()));
+		try {
+			if (this.readData(LINKS_REFERENCE_POSITION) != null) {
+				this.raf.seek(LINKS_REFERENCE_POSITION);
+				this.links = (HashMap<String,Long>) SerializationTools.deserialize(this.readData(this.raf.readLong()));
+			}
+		} catch(Exception ex) {
+			System.out.println(ex);
+			throw ex;
 		}
 	}
 

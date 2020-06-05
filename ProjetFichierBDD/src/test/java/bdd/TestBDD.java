@@ -96,12 +96,12 @@ public class TestBDD {
 	private void closeAndOpen() throws Exception {
 		HashMap<String, Long> links=bdd.getLinks();
 		checkClose();
-		checkBddOpened();
+		//checkBddOpened();
 		Assert.assertEquals(bdd.getLinks(), links);
 	}
 
 	private void testAddGetAndRemove(boolean closeFile) throws Exception {
-		checkBddOpened();
+		//checkBddOpened();
 		Person p=new Person();
 		String name="ObjectToRemove";
 		Assert.assertNull(bdd.getObject(name), "The object "+name+" should not be present into the database");
